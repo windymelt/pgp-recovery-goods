@@ -4,17 +4,26 @@
 @require: code-printer/code-syntax
 @require: code-printer/code-theme
 @require: colorbox/colorbox
+@require: figbox/figbox
 
 document (|
 title = {OpenPGP Key backup / revoking information};
-author = {0x12345678 windymelt\@3qe.us};
+author = {${ESCAPED_USERID}};
 |) '<
 +p{This information is a backup for PGP private key information and revoking statement.}
++p{This PDF is generated at ${DATE}.}
 +Colorbox.colorbox [] ?:({CAUTION}) <
 +listing{
 * This information is confidential. Handle with care.
 * This information contains a private key information.
-* Revise \footnote{https://.........} this document whenever you add new subkey.
+* Revise \footnote{https://github.com/windymelt/pgp-recovery-goods} this document whenever you add new subkey.
+}
+>
++Colorbox.colorbox [] ?:({Key Info}) <
++listing{
+* \dfn{Long-formatted Key ID} \inline-code(`${LONGKEYID}`);
+* \dfn{Fingerprint} \inline-code(`${FINGERPRINT}`);
+* \dfn{User ID} \inline-code(`${USERID}`);
 }
 >
 +chapter{Recovery procedure}<
@@ -24,6 +33,11 @@ author = {0x12345678 windymelt\@3qe.us};
 +section?:(`recover`){Recovering your key}<
 +p{At first, ensure prerequisites according to chapter \ref(`prerequisites`);.}
 +p{Retrieve your public key from key server as \inline-code(`public-key.asc`);.}
++code-printer?:(
+  CodePrinter.make-config CodeSyntax.shell CodeTheme.basic-font
+)(```gpg --keyserver keys.openpgp.org --recv-keys ${LONGKEYID}
+gpg --export ${LONGKEYID} > public-key.asc
+```);
 +p{Scan this document via scanner or photography and save as PNG file.}
 +p{Turns barcode into original key using \inline-code(`dmtxread`);\:}
 +code-printer?:(
@@ -32,25 +46,48 @@ CodePrinter.make-config CodeSyntax.shell CodeTheme.basic-font
 paperkey --pubring public-key.asc --secrets secret-key-paper.asc | gpg --import
 ```);
 
-+p{Thus your private key has been recovered.}
++p{Thus your private key has been recovered into your keyring.}
 >
 
-+section?:(`revoke`){Revoking your key}<
++section?:(`revoke`){Revoking your main key}<
+
++Colorbox.colorbox [] ?:({CAUTION}) <
++p{Revoking key is irreversible operation. Once key is marked as revoked and published, you can not cancel revocation.}
+>
+
 +p{At first, ensure prerequisites according to chapter \ref(`prerequisites`);.}
++p{Ensure the fingerprint you are going to revoke is correct.}
 +p{Scan this document via scanner or photography and save as PNG file.}
 +p{Turns barcode into original key using \inline-code(`dmtxread`);\:}
 +code-printer?:(
 CodePrinter.make-config CodeSyntax.shell CodeTheme.basic-font
 )(```dmtxread REVOKE.PNG | gpg --import
-gpg --keyserver pgp.mit.edu --send-keys 0x12345678
+gpg --keyserver keys.openpgp.org --send-keys ${LONGKEYID}
 ```);
 
 +p{Thus your key has been revoked.}
 >
+
++section{Revoking subkey}<
++code-printer?:(
+CodePrinter.make-config CodeSyntax.shell CodeTheme.basic-font
+)(```gpg --edit-key ${LONGKEYID}
+gpg> key N # subkey number
+gpg> revkey
+gpg> save
+
+gpg --keyserver keys.openpgp.org --send-keys ${LONGKEYID}
+```);
+>
+
 >
 +chapter{Data matrix}<
-+section{Private key}<>
-+section{Revocation certificate}<>
++section{Private key}<
++fig-center(FigBox.include-image 200pt `private.pdf`);
+>
++section{Revocation certificate}<
++fig-center(FigBox.include-image 200pt `revoke.pdf`);
+>
 >
 +chapter?:(`prerequisites`){Prerequisites}<
 +listing{
