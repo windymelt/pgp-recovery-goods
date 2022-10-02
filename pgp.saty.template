@@ -1,0 +1,65 @@
+@require: stdjareport
+@require: itemize
+@require: code-printer/code-printer
+@require: code-printer/code-syntax
+@require: code-printer/code-theme
+@require: colorbox/colorbox
+
+document (|
+title = {OpenPGP Key backup / revoking information};
+author = {0x12345678 windymelt\@3qe.us};
+|) '<
++p{This information is a backup for PGP private key information and revoking statement.}
++Colorbox.colorbox [] ?:({CAUTION}) <
++listing{
+* This information is confidential. Handle with care.
+* This information contains a private key information.
+* Revise \footnote{https://.........} this document whenever you add new subkey.
+}
+>
++chapter{Recovery procedure}<
++p{If you want to recover your key, proceed to \emph{section \ref(`recover`);.}}
++p{If you want to revoke your key, proceed to \emph{section \ref(`revoke`);.}}
+
++section?:(`recover`){Recovering your key}<
++p{At first, ensure prerequisites according to chapter \ref(`prerequisites`);.}
++p{Retrieve your public key from key server as \inline-code(`public-key.asc`);.}
++p{Scan this document via scanner or photography and save as PNG file.}
++p{Turns barcode into original key using \inline-code(`dmtxread`);\:}
++code-printer?:(
+CodePrinter.make-config CodeSyntax.shell CodeTheme.basic-font
+)(```dmtxread BACKUP.PNG > secret-key-paper.asc
+paperkey --pubring public-key.asc --secrets secret-key-paper.asc | gpg --import
+```);
+
++p{Thus your private key has been recovered.}
+>
+
++section?:(`revoke`){Revoking your key}<
++p{At first, ensure prerequisites according to chapter \ref(`prerequisites`);.}
++p{Scan this document via scanner or photography and save as PNG file.}
++p{Turns barcode into original key using \inline-code(`dmtxread`);\:}
++code-printer?:(
+CodePrinter.make-config CodeSyntax.shell CodeTheme.basic-font
+)(```dmtxread REVOKE.PNG | gpg --import
+gpg --keyserver pgp.mit.edu --send-keys 0x12345678
+```);
+
++p{Thus your key has been revoked.}
+>
+>
++chapter{Data matrix}<
++section{Private key}<>
++section{Revocation certificate}<>
+>
++chapter?:(`prerequisites`){Prerequisites}<
++listing{
+* GnuPG \>= 2
+* Your public key
+  ** Data matrix barcode contains only private key according to shrinking data size.
+* libdmtx \footnote{https://github.com/dmtx/libdmtx}
+* dmtxutill \footnote{https://github.com/dmtx/dmtx-utils}
+* paperkey \footnote{http://www.jabberwocky.com/software/paperkey/}
+}
+>
+>
