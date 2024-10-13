@@ -39,10 +39,10 @@ author = {${ESCAPED_USERID}};
 gpg --export ${LONGKEYID} > public-key.asc
 ```);
 +p{Scan this document via scanner or photography and save as PNG file.}
-+p{Turns barcode into original key using \inline-code(`dmtxread`);\:}
++p{Turns barcode into original key using \inline-code(`zbarimg`);\:}
 +code-printer?:(
 CodePrinter.make-config CodeSyntax.shell CodeTheme.basic-font
-)(```dmtxread BACKUP.PNG > secret-key-paper.asc
+)(```zbarimg -q --raw -Sbinary BACKUP.PNG > secret-key-paper.asc
 paperkey --pubring public-key.asc --secrets secret-key-paper.asc | gpg --import
 ```);
 
@@ -58,10 +58,10 @@ paperkey --pubring public-key.asc --secrets secret-key-paper.asc | gpg --import
 +p{At first, ensure prerequisites according to chapter \ref(`prerequisites`);.}
 +p{Ensure the fingerprint you are going to revoke is correct.}
 +p{Scan this document via scanner or photography and save as PNG file.}
-+p{Turns barcode into original key using \inline-code(`dmtxread`);\:}
++p{Turns barcode into original key using \inline-code(`zbarimg`);\:}
 +code-printer?:(
 CodePrinter.make-config CodeSyntax.shell CodeTheme.basic-font
-)(```dmtxread REVOKE.PNG | gpg --import
+)(```zbarimg -q --raw -Sbinary REVOKE.PNG | gpg --import
 gpg --keyserver keys.openpgp.org --send-keys ${LONGKEYID}
 ```);
 
@@ -81,21 +81,20 @@ gpg --keyserver keys.openpgp.org --send-keys ${LONGKEYID}
 >
 
 >
-+chapter{Data matrix}<
++chapter{QR Code}<
 +section{Private key}<
-+fig-center(FigBox.include-image 200pt `private.pdf`);
++fig-center(FigBox.include-image 200pt `./private.pdf`);
 >
 +section{Revocation certificate}<
-+fig-center(FigBox.include-image 200pt `revoke.pdf`);
++fig-center(FigBox.include-image 200pt `./revoke.pdf`);
 >
 >
 +chapter?:(`prerequisites`){Prerequisites}<
 +listing{
 * GnuPG \>= 2
 * Your public key
-  ** Data matrix barcode contains only private key according to shrinking data size.
-* libdmtx \footnote{https://github.com/dmtx/libdmtx}
-* dmtxutill \footnote{https://github.com/dmtx/dmtx-utils}
+  ** QR code contains only private key according to shrinking data size.
+* zbar \footnote{https://github.com/mchehab/zbar}
 * paperkey \footnote{http://www.jabberwocky.com/software/paperkey/}
 }
 >
